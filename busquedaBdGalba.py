@@ -1,12 +1,15 @@
 from conexionDB import conexionDB
 # conexion a la  base de datos GALBA (servidor mirrow)
 galba = conexionDB()
-galba.parametrosConexion("GALBA","postgres","root","localhost")
-galba.conectar()
+def buscarDatosGalba(servidor):
+	
+	# galba = conexionDB()
+	galba.parametrosConexion("GALBA","postgres","root",servidor)
+	galba.conectar()
 
-# Entrada de los puntos selecccioados por el administrador operativo
-# puntos = {"point_id":"36554433"},{"point_id":"36554434"},{"point_id":"36554435"},\
-# 		{"point_id":"36554436"},{"point_id":"36554437"}
+	# Entrada de los puntos selecccioados por el administrador operativo
+	# puntos = {"point_id":"36554433"},{"point_id":"36554434"},{"point_id":"36554435"},\
+	# 		{"point_id":"36554436"},{"point_id":"36554437"}
 
 def imprimirValores(arreglo):
 	i = 0	
