@@ -117,6 +117,7 @@ if validacionEntradaPuntos(entradaPuntos["point_id"],entradaPuntos["id_proceso"]
 	buscador.imprimirValores(coordenadasA)
 	buscador.imprimirValores(coordenadasD)
 
+	
 
 	# buscador.imprimirValores(calidadesA)
 	# buscador.imprimirValores(calidadesD)
@@ -310,8 +311,9 @@ if validacionEntradaPuntos(entradaPuntos["point_id"],entradaPuntos["id_proceso"]
 		while i < len(puntosD):
 			if verificacionPuntoDigital(puntosD[i][0]["point_id"])==False:
 				
-				siog.insertarUno("insert into punto_digital(id_punto,estado_inicial,estado_recolectado) \
-					values (%s,%s,%s)",(puntosD[i][0]["point_id"],puntosD[i][0]["initial_state"],estadosR[i]))
+				proceso = siog.retornarUno("select id_procesos_planta from punto where id_punto ="+str(puntosD[i][0]["point_id"]))
+				siog.insertarUno("insert into punto_digital(id_punto,estado_inicial,estado_recolectado,id_procesos_planta) \
+					values (%s,%s,%s,%s)",(puntosD[i][0]["point_id"],puntosD[i][0]["initial_state"],estadosR[i],proceso))
 
 				i = i + 1
 			else:
@@ -322,18 +324,18 @@ if validacionEntradaPuntos(entradaPuntos["point_id"],entradaPuntos["id_proceso"]
 	def insercionEstadosDigitales(estados):
 		i = 0
 		j = 0
+
+
 		while i < len(estados):
 			
 			while j < len(estados[i]):
-				if verificacionEstadoPuntoDigital(estados[i][j]["point_id"],estados[i][j]["state_id"])==False:
+				
 					
-					siog.insertarUno("insert into estado_punto(id_punto,id_estado,bit_asoc_estado) values(%s,%s,%s)",\
-						(estados[i][j]["point_id"],estados[i][j]["state_id"],estados[i][j]["bit_partner_state"]))
-					j = j+1
-				else:
-					siog.actualizar("update estado_punto set bit_asoc_estado=%s where id_punto=%s and id_estado=%s",\
-					(estados[i][j]["bit_partner_state"],estados[i][j]["point_id"],estados[i][j]["state_id"]))
-					j = j + 1
+				proceso = siog.retornarUno("select id_procesos_planta from punto where id_punto ="+str(estados[i][j]["point_id"]))
+				siog.insertarUno("insert into estado_punto(id_punto,id_estado,bit_asoc_estado,id_procesos_planta) values(%s,%s,%s,%s)",\
+					(estados[i][j]["point_id"],estados[i][j]["state_id"],estados[i][j]["bit_partner_state"],proceso))
+				j = j+1
+				
 				
 			j = 0
 			i = i + 1
@@ -345,11 +347,16 @@ if validacionEntradaPuntos(entradaPuntos["point_id"],entradaPuntos["id_proceso"]
 		while i < len(tipoAlarmas):
 			while j < len(tipoAlarmas[i]):
 				if alarmas[k][0]["alarm_id"]==tipoAlarmas[i][j]["alarm_id"]:
+					
 					if verificacionRepositorioAlarma(alarmas[k][0]["alarm_id"])==False:
 						
-						siog.insertarUno("insert into alarma(id_alarma,id_severidad,prioridad,esta_alarma_inhibida,descripcion_alarma,activa,esta_disponible,id_punto) \
-						values(%s,%s,%s,%s,%s,%s,%s,%s)",(alarmas[k][0]["alarm_id"],alarmas[k][0]["severity_id"],alarmas[k][0]["priority"],alarmas[k][0]["is_inhibited_alarm"],\
-						alarmas[k][0]["alarm_description"],alarmas[k][0]["active"],alarmas[k][0]["is_enabled"],tipoAlarmas[i][j]["point_id"]))
+						proceso = siog.retornarUno("select id_procesos_planta from punto where id_punto ="+str(tipoAlarmas[i][j]["point_id"]))
+						
+						siog.insertarUno("insert into alarma(id_alarma,id_severidad,prioridad,esta_alarma_inhibida,\
+							descripcion_alarma,activa,esta_disponible,id_punto,id_procesos_planta) values(%s,%s,%s,%s,%s,%s,%s,%s,%s)",\
+							(alarmas[k][0]["alarm_id"],alarmas[k][0]["severity_id"],alarmas[k][0]["priority"],\
+							alarmas[k][0]["is_inhibited_alarm"],alarmas[k][0]["alarm_description"],alarmas[k][0]["active"],\
+							alarmas[k][0]["is_enabled"],tipoAlarmas[i][j]["point_id"],proceso))
 					else:
 						siog.actualizar("update alarma set id_severidad=%s, prioridad=%s, esta_alarma_inhibida=%s,\
 						descripcion_alarma=%s, activa=%s, esta_disponible=%s where id_alarma=%s",(alarmas[k][0]["severity_id"],\
@@ -374,10 +381,12 @@ if validacionEntradaPuntos(entradaPuntos["point_id"],entradaPuntos["id_proceso"]
 				if verificacionAlarmaDigital(alarmasDigitales[i][j]["alarm_id"],alarmasDigitales[i][j]["point_id"],\
 					alarmasDigitales[i][j]["state_id"])==False:
 					
-					siog.insertarUno("insert into alarma_digital(id_alarma,id_punto,id_estado,bit_estado_aso_alarma,id_tipo_alarma) \
-						values(%s,%s,%s,%s,%s)",(alarmasDigitales[i][j]["alarm_id"],alarmasDigitales[i][j]["point_id"],\
-						alarmasDigitales[i][j]["state_id"],alarmasDigitales[i][j]["bit_partner_alarm"],\
-						alarmasDigitales[i][j]["alarm_type_id"]))
+					proceso = siog.retornarUno("select id_procesos_planta from punto where id_punto ="+str(alarmasDigitales[i][j]["point_id"]))
+					
+					siog.insertarUno("insert into alarma_digital(id_alarma,id_punto,id_estado,bit_estado_aso_alarma,id_tipo_alarma,\
+						id_procesos_planta) values(%s,%s,%s,%s,%s,%s)",(alarmasDigitales[i][j]["alarm_id"],alarmasDigitales[i][j]["point_id"],\
+						alarmasDigitales[i][j]["state_id"],alarmasDigitales[i][j]["bit_partner_alarm"],alarmasDigitales[i][j]["alarm_type_id"],\
+						proceso))
 					j = j+1
 				else:
 					
@@ -399,9 +408,11 @@ if validacionEntradaPuntos(entradaPuntos["point_id"],entradaPuntos["id_proceso"]
 		while i < len(puntosA):
 			if verificacionPuntoAnalogico(puntosA[i][0]["point_id"])==False:
 				
+				proceso = siog.retornarUno("select id_procesos_planta from punto where id_punto ="+str(puntosA[i][0]["point_id"]))
+				
 				siog.insertarUno("insert into punto_analogico(id_punto,lim_sup_ent_punto,lim_inf_ent_punto,unid_entrada_inge,\
-					valor_recolectado) values (%s,%s,%s,%s,%s)",(puntosA[i][0]["point_id"],puntosA[i][0]["in_upper_limit_egu"]\
-					,puntosA[i][0]["in_lower_limit_egu"],puntosA[i][0]["units_in_name"],valoresA[i]))
+					valor_recolectado,id_procesos_planta) values (%s,%s,%s,%s,%s,%s)",(puntosA[i][0]["point_id"],puntosA[i][0]["in_upper_limit_egu"]\
+					,puntosA[i][0]["in_lower_limit_egu"],puntosA[i][0]["units_in_name"],valoresA[i],proceso))
 
 				i = i + 1
 			else:
@@ -427,9 +438,11 @@ if validacionEntradaPuntos(entradaPuntos["point_id"],entradaPuntos["id_proceso"]
 				if verificacionAlarmaAnalogica(alarmasAnalogicas[i][j]["alarm_id"],alarmasAnalogicas[i][j]["point_id"]\
 				,alarmasAnalogicas[i][j]["alarm_type_id"])==False:
 					
-					siog.insertarUno("insert into alarma_analogica(id_alarma,id_tipo_alarma,id_punto,valor_Numerico) \
-					values (%s,%s,%s,%s)",(alarmasAnalogicas[i][j]["alarm_id"],alarmasAnalogicas[i][j]["alarm_type_id"],\
-					alarmasAnalogicas[i][j]["point_id"],alarmasAnalogicas[i][j]["numeric_value"]))
+					proceso = siog.retornarUno("select id_procesos_planta from punto where id_punto ="+str(alarmasAnalogicas[i][j]["point_id"]))
+					
+					siog.insertarUno("insert into alarma_analogica(id_alarma,id_tipo_alarma,id_punto,valor_Numerico,id_procesos_planta) \
+					values (%s,%s,%s,%s,%s)",(alarmasAnalogicas[i][j]["alarm_id"],alarmasAnalogicas[i][j]["alarm_type_id"],\
+					alarmasAnalogicas[i][j]["point_id"],alarmasAnalogicas[i][j]["numeric_value"],proceso))
 					
 					j = j + 1
 
@@ -443,6 +456,7 @@ if validacionEntradaPuntos(entradaPuntos["point_id"],entradaPuntos["id_proceso"]
 				
 			j = 0
 			i = i + 1
+
 
 
 	if len(coordenadasD)==0:
@@ -461,12 +475,26 @@ if validacionEntradaPuntos(entradaPuntos["point_id"],entradaPuntos["id_proceso"]
 		else:
 			insercionPuntos(points,coordenadasA,coordenadasD,calidadesA,calidadesD,entradaPuntos)
 			insercionPuntosDigitales(puntosDigitales,estadosD)
+
+			siog.retornarUno("select * from borrar_estados()")
 			insercionEstadosDigitales(estadosPuntosDigitales)
+
+			siog.retornarUno("select * from borrar_alarmas()")
+			insercionAlarmasDigitalesAnalogicasRepositorio(repositorioAlarmasDigitales,alarmasDigitales)
+
+			siog.retornarUno("select * from borrar_alarmas_digitales()")
+			insercionAlarmasDigitales(alarmasDigitales)
+
+			siog.retornarUno("select * from borrar_alarmas()")
+			insercionAlarmasDigitalesAnalogicasRepositorio(repositorioAlarmasAnalogicas,alarmasAnalogicas)
+			
+			insercionPuntosAnalogicos(puntosAnalogicos,valoresA)
+
+			siog.retornarUno("select * from borrar_alarmas_analogicas()")
+			insercionAlarmasAnalogicas(alarmasAnalogicas)
+
 			insercionAlarmasDigitalesAnalogicasRepositorio(repositorioAlarmasDigitales,alarmasDigitales)
 			insercionAlarmasDigitales(alarmasDigitales)
-			insercionAlarmasDigitalesAnalogicasRepositorio(repositorioAlarmasAnalogicas,alarmasAnalogicas)
-			insercionPuntosAnalogicos(puntosAnalogicos,valoresA)
-			insercionAlarmasAnalogicas(alarmasAnalogicas)
 
 else:
 	print('no hay puntos seleccionados o hubo una violacion de una restriccion')

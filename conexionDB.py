@@ -12,6 +12,7 @@ class conexionDB(object):
 		self.host = None
 		self.conexion = None
 		self.cursor = None
+		self.cursor2 = None
 		self.filas = None
 
 	def getCursor(self):
@@ -26,6 +27,7 @@ class conexionDB(object):
 	def conectar(self):
 		self.conexion = psycopg2.connect("dbname="+self.dbname+" user="+self.user+" password="+self.password+" host="+self.host)
 		self.cursor = self.conexion.cursor(cursor_factory=psycopg2.extras.DictCursor) #las consultas retornan diccionarios
+		self.cursor2 = self.conexion.cursor()
 	
 	def insertarUno(self,consulta,parametro):		
 	
@@ -37,6 +39,11 @@ class conexionDB(object):
 		self.cursor.executemany(consulta,diccionario)
 		self.conexion.commit()
 
+	def retornarUno(self,consulta):
+		self.cursor2.execute(consulta)
+		self.filas = self.cursor2.fetchone()
+
+		return self.filas
 
 	def mostrarConsulta(self,consulta):
 
@@ -52,6 +59,7 @@ class conexionDB(object):
 		
 		self.cursor.execute(consulta)
 		self.filas = self.cursor.fetchall()
+		self.conexion.commit()
 		return self.filas
 
 	def actualizar(self,consulta,parametro):
