@@ -507,6 +507,6 @@ def insercionPuntosSiog(nombrePlanta,servidor):
 
 
 
-# insercionPuntosSiog("taecjaa","localhost")
+insercionPuntosSiog("taecjaa","localhost")
 
 
